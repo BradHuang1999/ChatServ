@@ -14,10 +14,16 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 
-class ChatProgramServer {
-
-	ServerSocket serverSock;// server socket for connection
-	static Boolean running = true;  // controls if the server is accepting clients
+public class ChatProgramServer {
+	
+	// Server Socket
+	ServerSocket serverSock;
+	// Boolean for accepting client connections
+	static Boolean running = true;
+	
+	// ArrayLists of user objects and threads for clients
+	public ArrayList<User> clients = new ArrayList<User>();
+	public ArrayList<Thread> clientThreads = new ArrayList<Thread>();
 
 	/** Main
 	 * @param args parameters from command line
@@ -36,10 +42,6 @@ class ChatProgramServer {
 		// Variable for total number of clients
 		int numClients = -1;
 
-		// ArrayLists of user objects and threads for clients
-		ArrayList<User> clients = new ArrayList<User>();
-		ArrayList<Thread> clientThreads = new ArrayList<Thread>();
-
 		try {
 			// Assigns 5000 port to server
 			serverSock = new ServerSocket(5000);
@@ -53,7 +55,7 @@ class ChatProgramServer {
 				numClients++;
 				System.out.println("New client connected");
 				// Creates a separate thread for each user
-				clientThreads.add(new Thread(new ConnectionHandler(clients.get(numClients)))); //create a thread for the new client and pass in the socket
+				clientThreads.add(new Thread(new ConnectionHandler(clients.get(numClients))));
 				clientThreads.get(numClients).start(); //start the new thread
 			}
 		}catch(Exception e) { 
@@ -69,6 +71,7 @@ class ChatProgramServer {
 		private Socket client;  //keeps track of the client socket
 		private boolean running;
 		private User user;
+		private String inputMessage;
 		/* ConnectionHandler
 		 * Constructor
 		 * @param User object with client information
@@ -76,8 +79,9 @@ class ChatProgramServer {
 		ConnectionHandler(User user) { 
 			this.user = user;
 			// Assigns socket variable
-			this.client = user.getSocket(); 
-			try {  //assign all connections to client
+			this.client = user.getSocket();
+			try {  
+				//assign all input and output to client
 				this.output = new PrintWriter(client.getOutputStream());
 				InputStreamReader stream = new InputStreamReader(client.getInputStream());
 				this.input = new BufferedReader(stream);
@@ -95,37 +99,66 @@ class ChatProgramServer {
 			// Checks username and password
 			try {
 				if(input.ready()){
-					
+					inputMessage = input.readLine();
+					// If the user is making a new account
+					if(inputMessage == "newuser"){
+						// Setting the password and username
+						user.username = input.readLine();
+						user.password = input.readLine();
+					}else{
+						// Searches for username
+						for(int i = 0; i < clients.size(); i++){
+							if(inputMessage == clients.get(i).getUsername()){
+								user.username = inputMessage;
+								// Checks Password
+								inputMessage = input.readLine();
+								if(inputMessage == clients.get(i).getPassword()){
+									user.password = inputMessage;
+								}else{
+									output.println("Invalid Password");
+									System.out.println("Invalid Password");
+								}
+							}else ;
+						}
+						if((user.username != inputMessage) || (user.password != inputMessage)){
+							System.out.println("Invalid Username or Password");
+							output.println("Invalid Username or Password");
+						}
+					}
 				};
 			}catch (IOException e){
 				System.out.println("No Username or Password Received");
 				e.printStackTrace();
 			}
-			//Get a message from the client
-			while(running) {  // loop unit a message is received        
+			// Loop to keep receiving messages from the client
+			while(running) {  		
+				// Receives the messages that were sent to client
+				output.println(user.receivedMessage);
+				output.flush(); 
+				
+				// Checks if the user is still connected
 				try {
-					if (input.ready()) { //check for an incoming message
-						user.sendMessage = input.readLine();  //get a message from the client
-						System.out.println("msg from client: " + user.sendMessage); 
-						running=false; //stop receiving messages
+					if (input.ready()) {
+						// Checks if the client is sending a message
+						// First input is who they're messaging
+						user.messagingUser = input.readLine();
+						// Searches for the user in the arraylist
+						for(int i = 0; i < clients.size(); i++){
+							if(clients.get(i).getUsername() == user.messagingUser){
+								user.messagingInt = i;
+							}else ;
+						}
+						// Receives and sends the message
+						user.sendMessage = input.readLine();
+						user.sendMessage = (user.username + ": " + user.sendMessage);
+						clients.get(user.messagingInt).receivedMessage = user.sendMessage;
+						System.out.println("msg from " + user.username + "to " + clients.get(user.messagingInt).username + ": " + user.sendMessage);
+						
 					}
 				}catch (IOException e) { 
 					System.out.println("Failed to receive msg from the client");
 					e.printStackTrace();
 				}
-			}    
-
-			//Send a message to the client
-			output.println("We got your message! Goodbye.");
-			output.flush(); 
-
-			//close the socket
-			try {
-				input.close();
-				output.close();
-				client.close();
-			}catch (Exception e) { 
-				System.out.println("Failed to close socket");
 			}
 		} // end of run()
 	} //end of inner class   

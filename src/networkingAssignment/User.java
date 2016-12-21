@@ -10,6 +10,9 @@ class User {
 	protected String messageOfDay;
 	protected String sendMessage;
 	protected Socket socket;
+	protected String messagingUser;
+	protected String receivedMessage;
+	protected int messagingInt;
 	protected int status;
 	
 	// Constructor
@@ -103,6 +106,48 @@ class User {
 	 */
 	protected void setSocket(Socket socket) {
 		this.socket = socket;
+	}
+
+	/**
+	 * @return the messagingUser
+	 */
+	protected String getMessagingUser() {
+		return messagingUser;
+	}
+
+	/**
+	 * @param messagingUser the messagingUser to set
+	 */
+	protected void setMessagingUser(String messagingUser) {
+		this.messagingUser = messagingUser;
+	}
+
+	/**
+	 * @return the receivedMessage
+	 */
+	protected String getReceivedMessage() {
+		return receivedMessage;
+	}
+
+	/**
+	 * @param receivedMessage the receivedMessage to set
+	 */
+	protected void setReceivedMessage(String receivedMessage) {
+		this.receivedMessage = receivedMessage;
+	}
+
+	/**
+	 * @return the messagingInt
+	 */
+	protected int getMessagingInt() {
+		return messagingInt;
+	}
+
+	/**
+	 * @param messagingInt the messagingInt to set
+	 */
+	protected void setMessagingInt(int messagingInt) {
+		this.messagingInt = messagingInt;
 	}
 	
 }
