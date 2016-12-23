@@ -1,25 +1,27 @@
 package networkingAssignment;
 
 import java.net.Socket;
+import java.util.ArrayList;
 
 // User class
 class User {
 	// Universal User Variables
+	protected ArrayList<String> messages = new ArrayList<String>();
 	protected String username;
 	protected String password;
-	protected String messageOfDay;
+	protected String nickname;
+	protected String signature;
 	protected String sendMessage;
 	protected Socket socket;
 	protected String messagingUser;
-	protected String receivedMessage;
+	protected String status;
 	protected int messagingInt;
-	protected int status;
 	
 	// Constructor
 	User(Socket s){
 		// Online status by default
-		this.status = 1;
-		this.messageOfDay = "Status Message Here";
+		this.status = "Online";
+		this.signature = "Status Message Here";
 		// Setting socket
 		this.socket = s;
 	}
@@ -55,15 +57,15 @@ class User {
 	/**
 	 * @return the messageOfDay
 	 */
-	protected String getMessageOfDay() {
-		return messageOfDay;
+	protected String getSignature() {
+		return signature;
 	}
 
 	/**
 	 * @param messageOfDay the messageOfDay to set
 	 */
-	protected void setMessageOfDay(String messageOfDay) {
-		this.messageOfDay = messageOfDay;
+	protected void setSignature(String messageOfDay) {
+		this.signature = messageOfDay;
 	}
 
 	/**
@@ -83,14 +85,14 @@ class User {
 	/**
 	 * @return the status
 	 */
-	protected int getStatus() {
+	protected String getStatus() {
 		return status;
 	}
 
 	/**
 	 * @param status the status to set
 	 */
-	protected void setStatus(int status) {
+	protected void setStatus(String status) {
 		this.status = status;
 	}
 
@@ -123,20 +125,6 @@ class User {
 	}
 
 	/**
-	 * @return the receivedMessage
-	 */
-	protected String getReceivedMessage() {
-		return receivedMessage;
-	}
-
-	/**
-	 * @param receivedMessage the receivedMessage to set
-	 */
-	protected void setReceivedMessage(String receivedMessage) {
-		this.receivedMessage = receivedMessage;
-	}
-
-	/**
 	 * @return the messagingInt
 	 */
 	protected int getMessagingInt() {
@@ -148,6 +136,20 @@ class User {
 	 */
 	protected void setMessagingInt(int messagingInt) {
 		this.messagingInt = messagingInt;
+	}
+
+	/**
+	 * @return the nickname
+	 */
+	protected String getNickname() {
+		return nickname;
+	}
+
+	/**
+	 * @param nickname the nickname to set
+	 */
+	protected void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 	
 }

@@ -15,12 +15,12 @@ import java.net.*;
 import java.util.ArrayList;
 
 public class ChatProgramServer {
-	
+
 	// Server Socket
 	ServerSocket serverSock;
 	// Boolean for accepting client connections
 	static Boolean running = true;
-	
+
 	// ArrayLists of user objects and threads for clients
 	public ArrayList<User> clients = new ArrayList<User>();
 	public ArrayList<Thread> clientThreads = new ArrayList<Thread>();
@@ -46,6 +46,9 @@ public class ChatProgramServer {
 			// Assigns 5000 port to server
 			serverSock = new ServerSocket(5000);
 			// serverSock.setSoTimeout(5000);  //5 second timeout
+			// Create a new thread separate from the client threads to run server only things
+			Thread serverThread = new Thread(new ServerHandler());
+			serverThread.start();
 			// Continually loops to accept all clients
 			while(running) {
 				// Checks for outstanding messages to send to client
@@ -101,59 +104,146 @@ public class ChatProgramServer {
 				if(input.ready()){
 					inputMessage = input.readLine();
 					// If the user is making a new account
-					if(inputMessage == "newuser"){
-						// Setting the password and username
+					if(inputMessage == "CreateUser"){
+						// Setting the username, nickname, and password
 						user.username = input.readLine();
-						user.password = input.readLine();
-					}else{
+						// Checks if the username is in use
+						for(int i = 0; i < clients.size(); i++){
+							if(clients.get(i).username == user.username){
+								output.println("Username already in use");
+								output.flush();
+							}else{
+								// Sets Nickname
+								user.nickname = input.readLine();
+								// Sets and checks passwords
+								user.password = input.readLine();
+								inputMessage = input.readLine();
+								if(user.password.equals(inputMessage)){
+									// Confirms user creation
+									output.println("User created");
+									output.flush();
+								}else{
+									// If passwords don't match
+									output.println("Passwords do not match");
+									output.flush();
+								}
+							}
+						}
+					}else if (inputMessage == "Login"){
+						// Takes in the username
+						inputMessage = input.readLine();
 						// Searches for username
 						for(int i = 0; i < clients.size(); i++){
+							// If username matches a known user
 							if(inputMessage == clients.get(i).getUsername()){
-								user.username = inputMessage;
-								// Checks Password
+								// Checks for password
 								inputMessage = input.readLine();
 								if(inputMessage == clients.get(i).getPassword()){
-									user.password = inputMessage;
-								}else{
-									output.println("Invalid Password");
-									System.out.println("Invalid Password");
+									// Accepts user if passwords match
+									user = clients.get(i);
+									clients.remove(i);
+									clients.add(user);
+									output.println("Successful");
+									output.flush();
+								}else {
+									output.println("Unsuccessful");
+									output.flush();
 								}
 							}else ;
 						}
-						if((user.username != inputMessage) || (user.password != inputMessage)){
-							System.out.println("Invalid Username or Password");
-							output.println("Invalid Username or Password");
-						}
+						// If username is not found in the database
+						if(user.username == ""){
+							output.println("Unsuccessful");
+							output.flush();
+						}else ;
+						// If client doesn't send valid username command
+					}else{
+						output.println("Invalid Command Received");
+						output.flush();
 					}
 				};
+				// If nothing is sent to client
 			}catch (IOException e){
 				System.out.println("No Username or Password Received");
 				e.printStackTrace();
 			}
 			// Loop to keep receiving messages from the client
 			while(running) {  		
-				// Receives the messages that were sent to client
-				output.println(user.receivedMessage);
-				output.flush(); 
-				
+				// Sends all the friends list info to the client
+				output.println("Friends List Info");
+				output.flush();
+				for(int i = 0; i < clients.size(); i++){
+					output.println(clients.get(i).nickname);
+					output.flush();
+					output.println(clients.get(i).signature);
+					output.flush();
+					output.println(clients.get(i).status);
+					output.flush();
+				}
+				// Signals end of friends list info
+				output.println("End of Friends List");
+				output.flush();
+				// Sends all the messages in the client queue to the client
+				for(int i = 0; i < user.messages.size(); i++){
+					user.sendMessage = user.messages.get(i).substring(0, user.messages.get(i).indexOf(" "));
+					output.println(user.sendMessage);
+					output.flush();
+					user.messages.get(i) = user.messages.get(i).substring(indexOf(" "));
+				}
+				// Signals end of new messages
+				output.println("End of Messages");
+				output.flush();
+				// Removes messages
+				user.messages.clear();
+
 				// Checks if the user is still connected
 				try {
 					if (input.ready()) {
 						// Checks if the client is sending a message
-						// First input is who they're messaging
+						// First input is a command for what they want to do
 						user.messagingUser = input.readLine();
-						// Searches for the user in the arraylist
-						for(int i = 0; i < clients.size(); i++){
-							if(clients.get(i).getUsername() == user.messagingUser){
-								user.messagingInt = i;
-							}else ;
+						// If statement for what client wants to do
+						// Sending a Message
+						if(user.messagingUser == "SendMessage"){
+							// Searches for the user in the arraylist
+							for(int i = 0; i < clients.size(); i++){
+								if(clients.get(i).getUsername() == user.messagingUser){
+									user.messagingInt = i;
+								}else ;
+							}
+							// Receives and sends the message
+							user.sendMessage = input.readLine();
+							user.sendMessage = (user.username + ": " + user.sendMessage);
+							clients.get(user.messagingInt).messages.add(user.sendMessage);
+							System.out.println("msg from " + user.username + "to " + clients.get(user.messagingInt).username + ": " + user.sendMessage);
+						// Sending an Emoji
+						}else if(user.messagingUser == "SendEmoji"){
+						// Showing conversation history
+						}else if(user.messagingUser == "ShowConvo"){
+						// Changing status message
+						}else if(user.messagingUser == "ChangeSignature"){
+							inputMessage = input.readLine();
+							user.signature = inputMessage;
+							output.println("Signature Changed");
+							output.flush();
+						// Setting Status To Busy
+						}else if(user.messagingUser == "Busy"){
+							user.status = "Busy";
+							output.println("Status Changed");
+							output.flush();
+						// Setting Status to Online
+						}else if(user.messagingUser == "Online"){
+							user.status = "Online";
+							output.println("Status Changed");
+							output.flush();
+						}else if(user.messagingUser == "Offline"){
+							user.status = "Offline";
+							output.println("Status Changed");
+							output.flush();
+						}else{
+							output.println("Invalid Command Received");
+							output.flush();
 						}
-						// Receives and sends the message
-						user.sendMessage = input.readLine();
-						user.sendMessage = (user.username + ": " + user.sendMessage);
-						clients.get(user.messagingInt).receivedMessage = user.sendMessage;
-						System.out.println("msg from " + user.username + "to " + clients.get(user.messagingInt).username + ": " + user.sendMessage);
-						
 					}
 				}catch (IOException e) { 
 					System.out.println("Failed to receive msg from the client");
@@ -161,5 +251,46 @@ public class ChatProgramServer {
 				}
 			}
 		} // end of run()
-	} //end of inner class   
+	} //end of ConnectionHandler inner class   
+	//***** Inner class - thread for server only processes
+	class ServerHandler implements Runnable { 
+		private PrintWriter output; //assign printwriter to network stream
+		private boolean running;
+		/* ConnectionHandler
+		 * Constructor
+		 * @param User object with client information
+		 */    
+		ServerHandler() { 
+			/*try {  
+
+				}catch(IOException e) {
+					e.printStackTrace();        
+				}            */
+			running=true;
+		} //end of constructor
+
+
+		/* run
+		 * executed on start of thread
+		 */
+		public void run() {  
+			while(running) {  	
+				// Checks if all users are connected
+				try {
+
+				}catch (IOException e){
+					System.out.println("User Disconnected");
+					e.printStackTrace();
+				}
+				// Loop to keep receiving messages from the client	
+
+				// Checks if all users are still connected
+				try {
+
+				}catch (IOException e) { 
+					e.printStackTrace();
+				}
+			}
+		} // end of run()
+	} //end of ServerHandler inner class   
 } //end of ChatProgramServer class
