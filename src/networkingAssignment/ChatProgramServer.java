@@ -45,13 +45,12 @@ public class ChatProgramServer{
 
 		// Variable for total number of clients
 		int numClients = -1;
-
 		try {
 			// Assigns 5000 port to server
 			serverSock = new ServerSocket(5000);
 			// Read users from text file
 			File users = new File("users.txt");
-			PrintWriter usersFile = new PrintWriter(users);
+			PrintWriter usersFile;
 			Scanner usersReader = new Scanner(users);
 			int userNum = 0;
 			while(usersReader.hasNextLine()){
@@ -62,10 +61,14 @@ public class ChatProgramServer{
 				userNum++;
 			}
 			usersReader.close();
+			 Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			        public void run() {
+			        	System.out.println("Closing");
+
+			        }
+			    }, "Shutdown-thread"));
 			// Continually loops to accept all clients
 			while (running){
-				// Checks for outstanding messages to send to client
-				//Insert code here to check user arraylist
 				// Adds user to arraylist
 				clients.add(new User(serverSock.accept()));  //wait for connection
 				numClients++;
@@ -73,18 +76,15 @@ public class ChatProgramServer{
 				// Creates a separate thread for each user
 				clientThreads.add(new Thread(new ConnectionHandler(clients.get(numClients))));
 				clientThreads.get(numClients).start(); //start the new thread
+				// Updates textfile with users
+				usersFile = new PrintWriter(users);
+				for(int i = 0; i < clients.size(); i++){
+					usersFile.println(clients.get(i).username);
+					usersFile.println(clients.get(i).nickname);
+					usersFile.println(clients.get(i).password);
+				}
+				usersFile.close();
 			}
-			 Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-			        public void run() {
-						// Updates textfile with users
-						for(int i = 0; i < clients.size(); i++){
-							usersFile.println(clients.get(i).username);
-							usersFile.println(clients.get(i).nickname);
-							usersFile.println(clients.get(i).password);
-						}
-						usersFile.close();
-			        }
-			    }, "Shutdown-thread"));
 		} catch (Exception e){
 			System.out.println("Error accepting connection");
 			System.exit(-1);
