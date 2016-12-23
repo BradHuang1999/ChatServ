@@ -73,14 +73,18 @@ public class ChatProgramServer{
 				// Creates a separate thread for each user
 				clientThreads.add(new Thread(new ConnectionHandler(clients.get(numClients))));
 				clientThreads.get(numClients).start(); //start the new thread
-				// Updates textfile with users
-				for(int i = 0; i < clients.size(); i++){
-					usersFile.println(clients.get(i).username);
-					usersFile.println(clients.get(i).nickname);
-					usersFile.println(clients.get(i).password);
-				}
 			}
-			usersFile.close();
+			 Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			        public void run() {
+						// Updates textfile with users
+						for(int i = 0; i < clients.size(); i++){
+							usersFile.println(clients.get(i).username);
+							usersFile.println(clients.get(i).nickname);
+							usersFile.println(clients.get(i).password);
+						}
+						usersFile.close();
+			        }
+			    }, "Shutdown-thread"));
 		} catch (Exception e){
 			System.out.println("Error accepting connection");
 			System.exit(-1);
