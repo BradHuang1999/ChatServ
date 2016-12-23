@@ -13,6 +13,7 @@ package networkingAssignment;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class ChatProgramServer{
 
@@ -48,6 +49,19 @@ public class ChatProgramServer{
 		try {
 			// Assigns 5000 port to server
 			serverSock = new ServerSocket(5000);
+			// Read users from text file
+			File users = new File("users.txt");
+			PrintWriter usersFile = new PrintWriter(users);
+			Scanner usersReader = new Scanner(users);
+			int userNum = 0;
+			while(usersReader.hasNextLine()){
+				clients.add(new User());
+				clients.get(userNum).username = usersReader.nextLine();
+				clients.get(userNum).nickname = usersReader.nextLine();
+				clients.get(userNum).password = usersReader.nextLine();
+				userNum++;
+			}
+			usersReader.close();
 			// Continually loops to accept all clients
 			while (running){
 				// Checks for outstanding messages to send to client
@@ -59,7 +73,14 @@ public class ChatProgramServer{
 				// Creates a separate thread for each user
 				clientThreads.add(new Thread(new ConnectionHandler(clients.get(numClients))));
 				clientThreads.get(numClients).start(); //start the new thread
+				// Updates textfile with users
+				for(int i = 0; i < clients.size(); i++){
+					usersFile.println(clients.get(i).username);
+					usersFile.println(clients.get(i).nickname);
+					usersFile.println(clients.get(i).password);
+				}
 			}
+			usersFile.close();
 		} catch (Exception e){
 			System.out.println("Error accepting connection");
 			System.exit(-1);

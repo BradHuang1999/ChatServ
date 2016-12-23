@@ -18,8 +18,11 @@ class User {
 	protected String messagingUser;
 	protected String status;
 	protected int messagingInt;
-
-	// Constructor
+	
+	// Constructors
+	User(){
+		this.status = "Offline";
+	}
 	User(Socket s){
 		// Online status by default
 		this.status = "Online";
@@ -153,5 +156,5 @@ class User {
 	protected void setNickname(String nickname) {
 		this.nickname = nickname;
 	}
-
+	
 }
