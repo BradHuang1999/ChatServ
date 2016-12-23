@@ -61,12 +61,12 @@ public class ChatProgramServer{
 				userNum++;
 			}
 			usersReader.close();
-			 Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-			        public void run() {
-			        	System.out.println("Closing");
+			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+				public void run() {
+					System.out.println("Closing");
 
-			        }
-			    }, "Shutdown-thread"));
+				}
+			}, "Shutdown-thread"));
 			// Continually loops to accept all clients
 			while (running){
 				// Adds user to arraylist
@@ -134,177 +134,197 @@ public class ChatProgramServer{
 							// Setting the username, nickname, and password
 							inputMessage = input.readLine();
 							// Checks if the username is in use
-							for (int i = 0; i < clients.size(); i++){
-								if (clients.get(i).username.equals(inputMessage)){
-									inputMessage = input.readLine();
-									inputMessage = input.readLine();
-									inputMessage = input.readLine();
-									output.println("Username already in use");
+							if(clients.size() > 0){
+								for (int i = 0; i < clients.size(); i++){
+									if (clients.get(i).username.equals(inputMessage)){
+										inputMessage = input.readLine();
+										inputMessage = input.readLine();
+										inputMessage = input.readLine();
+										output.println("Username already in use");
+										output.flush();
+									} else {
+										// Sets Username
+										user.username = inputMessage;
+										// Sets Nickname
+										user.nickname = input.readLine();
+										// Sets and checks passwords
+										user.password = input.readLine();
+										inputMessage = input.readLine();
+										if (user.password.equals(inputMessage)){
+											// Confirms user creation
+											output.println("User created");
+											output.flush();
+										} else {
+											// If passwords don't match
+											output.println("Passwords do not match");
+											output.flush();
+										}
+									}
+								}
+								// If it's the first user
+							}else{
+								// Sets Username
+								user.username = inputMessage;
+								// Sets Nickname
+								user.nickname = input.readLine();
+								// Sets and checks passwords
+								user.password = input.readLine();
+								inputMessage = input.readLine();
+								if (user.password.equals(inputMessage)){
+									// Confirms user creation
+									output.println("User created");
 									output.flush();
 								} else {
-									// Sets Username
-									user.username = inputMessage;
-									// Sets Nickname
-									user.nickname = input.readLine();
-									// Sets and checks passwords
-									user.password = input.readLine();
-									inputMessage = input.readLine();
-									if (user.password.equals(inputMessage)){
-										// Confirms user creation
-										output.println("User created");
-										output.flush();
-									} else {
-										// If passwords don't match
-										output.println("Passwords do not match");
-										output.flush();
-									}
+									// If passwords don't match
+									output.println("Passwords do not match");
+									output.flush();
 								}
 							}
-						} else if (inputMessage.equals("Login")){
-							// Takes in the username
-							inputMessage = input.readLine();
-							// Searches for username
-							for (int i = 0; i < clients.size(); i++){
-								// If username matches a known user
-								if (inputMessage.equals(clients.get(i).getUsername())){
-									// Checks for password
-									inputMessage = input.readLine();
-									if (inputMessage.equals(clients.get(i).getPassword())){
-										// Accepts user if passwords match
-										user = clients.get(i);
-										clients.remove(i);
-										clients.add(user);
-										output.println("Successful");
-										output.flush();
-										running = false;
-									} else {
-										output.println("Unsuccessful");
-										output.flush();
-									}
-								} else ;
-							}
-							// If username is not found in the database
-							if (user == null){
-								output.println("Unsuccessful");
-								output.flush();
-							}
-							// If client doesn't send valid username command
-						} else {
-							output.println("Invalid Command Received");
+						}
+					} else if (inputMessage.equals("Login")){
+						// Takes in the username
+						inputMessage = input.readLine();
+						// Searches for username
+						for (int i = 0; i < clients.size(); i++){
+							// If username matches a known user
+							if (inputMessage.equals(clients.get(i).getUsername())){
+								// Checks for password
+								inputMessage = input.readLine();
+								if (inputMessage.equals(clients.get(i).getPassword())){
+									// Accepts user if passwords match
+									user = clients.get(i);
+									clients.remove(i);
+									clients.add(user);
+									output.println("Successful");
+									output.flush();
+									running = false;
+								} else {
+									output.println("Unsuccessful");
+									output.flush();
+								}
+							} else ;
+						}
+						// If username is not found in the database
+						if (user == null){
+							output.println("Unsuccessful");
 							output.flush();
 						}
+						// If client doesn't send valid username command
+					} else {
+						output.println("Invalid Command Received");
+						output.flush();
 					}
-					// If nothing is sent to client
-				} catch (IOException e){
-					System.out.println("No Username or Password Received");
-					e.printStackTrace();
-				}
+				// If nothing is sent to client
+			} catch (IOException e){
+				System.out.println("No Username or Password Received");
+				e.printStackTrace();
 			}
-			running = true;
-			// Loop to keep receiving messages from the client
-			while (running){
-				// Sends all the friends list info to the client
-				output.println("Friends List Info");
+		}
+		running = true;
+		// Loop to keep receiving messages from the client
+		while (running){
+			// Sends all the friends list info to the client
+			output.println("Friends List Info");
+			output.flush();
+			for (int i = 0; i < clients.size(); i++){
+				output.println(clients.get(i).username);
 				output.flush();
-				for (int i = 0; i < clients.size(); i++){
-					output.println(clients.get(i).username);
-					output.flush();
-					output.println(clients.get(i).nickname);
-					output.flush();
-					output.println(clients.get(i).signature);
-					output.flush();
-					output.println(clients.get(i).status);
-					output.flush();
-				}
-				// Signals end of friends list info
-				output.println("End of Friends List");
+				output.println(clients.get(i).nickname);
 				output.flush();
-				// Sends all the messages in the client queue to the client
-				for (int i = 0; i < user.messages.size(); i++){
-					// Nickname of person messaging
-					output.println(user.messageSenders.get(i));
-					output.flush();
-					// Timestamp of message
-					output.println(user.messageTime.get(i));
-					output.flush();
-					// Actual message
-					output.println(user.messages.get(i));
-					output.flush();
-				}
-				// Signals end of new messages
-				output.println("End of Messages");
+				output.println(clients.get(i).signature);
 				output.flush();
-				// Removes messages
-				user.messages.clear();
+				output.println(clients.get(i).status);
+				output.flush();
+			}
+			// Signals end of friends list info
+			output.println("End of Friends List");
+			output.flush();
+			// Sends all the messages in the client queue to the client
+			for (int i = 0; i < user.messages.size(); i++){
+				// Nickname of person messaging
+				output.println(user.messageSenders.get(i));
+				output.flush();
+				// Timestamp of message
+				output.println(user.messageTime.get(i));
+				output.flush();
+				// Actual message
+				output.println(user.messages.get(i));
+				output.flush();
+			}
+			// Signals end of new messages
+			output.println("End of Messages");
+			output.flush();
+			// Removes messages
+			user.messages.clear();
 
-				// Checks if the user is still connected
-				try {
-					if (input.ready()){
-						// Checks if the client is sending a message
-						// First input is a command for what they want to do
+			// Checks if the user is still connected
+			try {
+				if (input.ready()){
+					// Checks if the client is sending a message
+					// First input is a command for what they want to do
+					user.messagingUser = input.readLine();
+					// If statement for what client wants to do
+					// Sending a Message
+					if (user.messagingUser.equals("SendMessage")){
+						// Searches for the user in the arraylist
 						user.messagingUser = input.readLine();
-						// If statement for what client wants to do
-						// Sending a Message
-						if (user.messagingUser.equals("SendMessage")){
-							// Searches for the user in the arraylist
-							user.messagingUser = input.readLine();
-							for (int i = 0; i < clients.size(); i++){
-								if (clients.get(i).getUsername().equals(user.messagingUser)){
-									user.messagingInt = i;
-								}
+						for (int i = 0; i < clients.size(); i++){
+							if (clients.get(i).getUsername().equals(user.messagingUser)){
+								user.messagingInt = i;
 							}
-							// Receives and sends the message
-							user.sendMessage = input.readLine();
-							clients.get(user.messagingInt).messageSenders.add(user.nickname);
-							clients.get(user.messagingInt).messageTime.add(user.sendMessage);
-							user.sendMessage = input.readLine();
-							clients.get(user.messagingInt).messages.add(user.sendMessage);
-							System.out.println("msg from " + user.username + "to " + clients.get(user.messagingInt).username + ": " + user.sendMessage);
-						} else if (user.messagingUser.equals("ChangeSignature")){
-							inputMessage = input.readLine();
-							user.signature = inputMessage;
-							output.println("Signature Changed");
-							output.flush();
-							// Setting Status To Busy
-						} else if (user.messagingUser.equals("Busy")){
-							user.status = "Busy";
-							output.println("Status Changed");
-							output.flush();
-							// Setting Status to Online
-						} else if (user.messagingUser.equals("Online")){
-							user.status = "Online";
-							output.println("Status Changed");
-							output.flush();
-						} else if (user.messagingUser.equals("Offline")){
-							user.status = "Offline";
-							output.println("Status Changed");
-							output.flush();
-						} else if (user.messagingUser.equals("Close")){
-							user.status = "Offline";
-							System.out.println("User " + user.username + " has disconnected");
-							running = false;
-						} else {
-							output.println("Invalid Command Received");
-							output.flush();
 						}
+						// Receives and sends the message
+						user.sendMessage = input.readLine();
+						clients.get(user.messagingInt).messageSenders.add(user.nickname);
+						clients.get(user.messagingInt).messageTime.add(user.sendMessage);
+						user.sendMessage = input.readLine();
+						clients.get(user.messagingInt).messages.add(user.sendMessage);
+						System.out.println("msg from " + user.username + "to " + clients.get(user.messagingInt).username + ": " + user.sendMessage);
+					} else if (user.messagingUser.equals("ChangeSignature")){
+						inputMessage = input.readLine();
+						user.signature = inputMessage;
+						output.println("Signature Changed");
+						output.flush();
+						// Setting Status To Busy
+					} else if (user.messagingUser.equals("Busy")){
+						user.status = "Busy";
+						output.println("Status Changed");
+						output.flush();
+						// Setting Status to Online
+					} else if (user.messagingUser.equals("Online")){
+						user.status = "Online";
+						output.println("Status Changed");
+						output.flush();
+					} else if (user.messagingUser.equals("Offline")){
+						user.status = "Offline";
+						output.println("Status Changed");
+						output.flush();
+					} else if (user.messagingUser.equals("Close")){
+						user.status = "Offline";
+						System.out.println("User " + user.username + " has disconnected");
+						running = false;
+					} else {
+						output.println("Invalid Command Received");
+						output.flush();
 					}
-				} catch (IOException e){
-					System.out.println("Failed to receive msg from the client");
-					e.printStackTrace();
 				}
+			} catch (IOException e){
+				System.out.println("Failed to receive msg from the client");
+				e.printStackTrace();
 			}
-		} // end of run()
-	} //end of ConnectionHandler inner class
+		}
+	} // end of run()
+} //end of ConnectionHandler inner class
 
-	class ServerBufferedReader extends BufferedReader{
-		public ServerBufferedReader(Reader in){
-			super(in);
-		}
-		@Override
-		public String readLine() throws IOException{
-			String line = super.readLine();
-			System.out.println("Client: " + line);
-			return line;
-		}
+class ServerBufferedReader extends BufferedReader{
+	public ServerBufferedReader(Reader in){
+		super(in);
 	}
+	@Override
+	public String readLine() throws IOException{
+		String line = super.readLine();
+		System.out.println("Client: " + line);
+		return line;
+	}
+}
 }
