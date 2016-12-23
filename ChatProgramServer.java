@@ -50,7 +50,7 @@ public class ChatProgramServer{
 			serverSock = new ServerSocket(5000);
 			// Read users from text file
 			File users = new File("users.txt");
-			PrintWriter usersFile = new PrintWriter(users);
+			PrintWriter usersFile;
 			Scanner usersReader = new Scanner(users);
 			int userNum = 0;
 			while(usersReader.hasNextLine()){
