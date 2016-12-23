@@ -107,16 +107,18 @@ public class ChatProgramServer{
 						// If the user is making a new account
 						if (inputMessage.equals("CreateUser")){
 							// Setting the username, nickname, and password
-							user.username = input.readLine();
+							inputMessage = input.readLine();
 							// Checks if the username is in use
 							for (int i = 0; i < clients.size(); i++){
-								if (clients.get(i).username.equals(user.username)){
+								if (clients.get(i).username.equals(inputMessage)){
 									inputMessage = input.readLine();
 									inputMessage = input.readLine();
 									inputMessage = input.readLine();
 									output.println("Username already in use");
 									output.flush();
 								} else {
+									// Sets Username
+									user.username = inputMessage;
 									// Sets Nickname
 									user.nickname = input.readLine();
 									// Sets and checks passwords
