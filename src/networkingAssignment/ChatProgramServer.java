@@ -111,6 +111,9 @@ public class ChatProgramServer{
 							// Checks if the username is in use
 							for (int i = 0; i < clients.size(); i++){
 								if (clients.get(i).username.equals(user.username)){
+									inputMessage = input.readLine();
+									inputMessage = input.readLine();
+									inputMessage = input.readLine();
 									output.println("Username already in use");
 									output.flush();
 								} else {
