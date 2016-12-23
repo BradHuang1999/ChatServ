@@ -80,7 +80,6 @@ public class SignupGUI extends JFrame{
                         if (msg.equals("User created")){
                             dispose();
                         } else {
-                            System.out.println("Server to Signup: " + msg);
                             warning.setText(msg);
                         }
                         run = false;

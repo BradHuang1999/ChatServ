@@ -2,10 +2,7 @@ package networkingAssignment;
 
 import sun.rmi.runtime.Log;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 
 /**
@@ -14,7 +11,7 @@ import java.net.Socket;
 class ChatServ{
 
     private Socket mySocket; //socket for connection
-    protected BufferedReader input; //reader for network stream
+    protected ClientBufferedReader input; //reader for network stream
     protected PrintWriter output;
     private boolean running = true;
 
@@ -32,7 +29,7 @@ class ChatServ{
         try {
             mySocket = new Socket("127.0.0.1", 5000); //attempt socket connection (local address). This will wait until a connection is made
             InputStreamReader stream1 = new InputStreamReader(mySocket.getInputStream()); //Stream for network input
-            input = new BufferedReader(stream1);
+            input = new ClientBufferedReader(stream1);
             output = new PrintWriter(mySocket.getOutputStream()); //assign printwriter to network stream
         } catch (IOException e){  //connection error occured
             System.out.println("Connection to Server Failed");
@@ -74,6 +71,18 @@ class ChatServ{
 
         } catch (Exception e){
             System.out.println("Failed to close socket");
+        }
+    }
+
+    class ClientBufferedReader extends BufferedReader{
+        public ClientBufferedReader(Reader in){
+            super(in);
+        }
+        @Override
+        public String readLine() throws IOException{
+            String line = super.readLine();
+            System.out.println("Server: " + line);
+            return line;
         }
     }
 }

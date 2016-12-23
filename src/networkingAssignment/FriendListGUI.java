@@ -31,15 +31,27 @@ public class FriendListGUI extends JFrame{
         setResizable(false);
         setLocationRelativeTo(null);
         addWindowListener(new WindowListener(){
-            public void windowClosed(WindowEvent e){}
-            public void windowOpened(WindowEvent e){}
+            public void windowClosed(WindowEvent e){
+            }
+
+            public void windowOpened(WindowEvent e){
+            }
+
             public void windowClosing(WindowEvent e){
                 client.close();
             }
-            public void windowIconified(WindowEvent e){}
-            public void windowDeiconified(WindowEvent e){}
-            public void windowActivated(WindowEvent e){}
-            public void windowDeactivated(WindowEvent e){}
+
+            public void windowIconified(WindowEvent e){
+            }
+
+            public void windowDeiconified(WindowEvent e){
+            }
+
+            public void windowActivated(WindowEvent e){
+            }
+
+            public void windowDeactivated(WindowEvent e){
+            }
         });
 
         JLabel lblNickname = new JLabel(nickname);
@@ -66,8 +78,8 @@ public class FriendListGUI extends JFrame{
 
         //TODO figure out how to use documentlistener, check Chemical Balancer Project
 
-        txtSignatureHelloworld.getDocument().addDocumentListener(new DocumentListener() {
-            public void changedUpdate(DocumentEvent e) {
+        txtSignatureHelloworld.getDocument().addDocumentListener(new DocumentListener(){
+            public void changedUpdate(DocumentEvent e){
                 if (!txtSignatureHelloworld.getText().contains("Signature")){
                     txtSignatureHelloworld.setText("Signature: " + txtSignatureHelloworld.getText());
                 }
@@ -75,8 +87,12 @@ public class FriendListGUI extends JFrame{
                 client.output.println("ChangeSignature\n" + signature);
                 client.output.flush();
             }
-            public void removeUpdate(DocumentEvent e) {}
-            public void insertUpdate(DocumentEvent e) {}
+
+            public void removeUpdate(DocumentEvent e){
+            }
+
+            public void insertUpdate(DocumentEvent e){
+            }
         });
 //        txtSignatureHelloworld.addFocusListener(new FocusListener(){
 //            public void focusLost(FocusEvent e){
@@ -158,12 +174,6 @@ public class FriendListGUI extends JFrame{
         DefaultListModel lm = new DefaultListModel();
         list.setModel(lm);
 
-        // TODO put the following code into a while loop, and update for client.input every second
-
-        //JUST FOR TEST
-        lm.addElement(new Friend("Friend 1 Nickname", "Friend 1 Signature", "Friend 1 UserName", "Friend 1 status"));
-        lm.addElement(new Friend("Friend 2 Nickname", "Friend 2 Signature", "Friend 2 UserName", "Friend 2 status"));
-
         list.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()){
                 client.output.println("ShowConvo\n" + list.getSelectedValue().getUserName());
@@ -175,6 +185,27 @@ public class FriendListGUI extends JFrame{
         });
 
         // TODO handle client.input information, setup While loop. Change signature, nickname, username, friendlist content accordingly
+        boolean run = true;
+        while (run){
+//            while (running){  // loop unit a message is received
+//                try {
+//                    if (input.ready()){ //check for an incoming messge
+//                        String msg;
+//                        msg = input.readLine(); //read the message
+//                        System.out.println("Server: " + msg);
+//                    }
+//                } catch (IOException e){
+//                    System.out.println("Failed to receive msg from the server");
+//                    e.printStackTrace();
+//                    this.close();
+//                }
+//            }
+
+            //JUST FOR TEST
+            lm.addElement(new Friend("Friend 1 Nickname", "Friend 1 Signature", "Friend 1 UserName", "Friend 1 status"));
+            lm.addElement(new Friend("Friend 2 Nickname", "Friend 2 Signature", "Friend 2 UserName", "Friend 2 status"));
+
+        }
     }
 
     class Friend extends JPanel implements ListCellRenderer{

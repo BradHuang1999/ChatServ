@@ -69,7 +69,7 @@ public class ChatProgramServer{
 	//***** Inner class - thread for client connection
 	class ConnectionHandler implements Runnable{
 		private PrintWriter output; //assign printwriter to network stream
-		private BufferedReader input; //Stream for network input
+		private ServerBufferedReader input; //Stream for network input
 		private Socket client;  //keeps track of the client socket
 		private boolean running;
 		private User user;
@@ -87,7 +87,7 @@ public class ChatProgramServer{
 				//assign all input and output to client
 				this.output = new PrintWriter(client.getOutputStream());
 				InputStreamReader stream = new InputStreamReader(client.getInputStream());
-				this.input = new BufferedReader(stream);
+				this.input = new ServerBufferedReader(stream);
 			} catch (IOException e){
 				e.printStackTrace();
 			}
@@ -180,6 +180,8 @@ public class ChatProgramServer{
 				output.println("Friends List Info");
 				output.flush();
 				for (int i = 0; i < clients.size(); i++){
+					output.println(clients.get(i).username);
+					output.flush();
 					output.println(clients.get(i).nickname);
 					output.flush();
 					output.println(clients.get(i).signature);
@@ -266,4 +268,16 @@ public class ChatProgramServer{
 			}
 		} // end of run()
 	} //end of ConnectionHandler inner class
+
+	class ServerBufferedReader extends BufferedReader{
+		public ServerBufferedReader(Reader in){
+			super(in);
+		}
+		@Override
+		public String readLine() throws IOException{
+			String line = super.readLine();
+			System.out.println("Client: " + line);
+			return line;
+		}
+	}
 }

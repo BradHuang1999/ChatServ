@@ -78,7 +78,6 @@ public class LoginGUI extends JFrame{
                             client.friendList.setVisible(true);
                             this.dispose();
                         } else {
-                            System.out.println("Server to Login: " + msg);
                             warning.setText("Invalid Username or Password");
                         }
                         run = false;
