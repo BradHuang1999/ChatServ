@@ -1,10 +1,10 @@
 package networkingAssignment;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.BufferedReader;
-import java.io.PrintWriter;
+import java.io.IOException;
 
 /**
  * Created by Brad Huang on 12/21/2016.
@@ -14,7 +14,7 @@ public class LoginGUI extends JFrame{
     private JTextField textField;
     private JPasswordField passwordField;
 
-    public LoginGUI(PrintWriter output, BufferedReader input, ChatServ client){
+    public LoginGUI(ChatServ client){
         getContentPane().setLayout(null);
 
         setTitle("Login");
@@ -52,34 +52,58 @@ public class LoginGUI extends JFrame{
 
         JLabel lblNewLabel_2 = new JLabel("");
         lblNewLabel_2.setIcon(new ImageIcon("resources/IMG_001.png"));
-        lblNewLabel_2.setBounds(94, 11, 198, 155);
+        lblNewLabel_2.setBounds(98, 11, 198, 155);
         getContentPane().add(lblNewLabel_2);
+
+        JLabel warning = new JLabel("");
+        warning.setForeground(Color.RED);
+        warning.setBounds(111, 147, 198, 22);
+        getContentPane().add(warning);
 
         JButton btnLogin = new JButton("Login");
         btnLogin.addActionListener(e -> {
-            output.println("Login\n" + textField.getText() + "\n" + String.valueOf(passwordField.getPassword()));
-            output.flush();
+            warning.setText("");
 
-            //TODO handle input from server
+            client.output.println("Login\n" + textField.getText() + "\n" + String.valueOf(passwordField.getPassword()));
+            client.output.flush();
 
-            FriendListGUI friendList = new FriendListGUI(output, input, client);   // for now.
-            friendList.setVisible(true);
-
-            this.dispose();
+            boolean run = true;
+            while (run){
+                try {
+                    if (client.input.ready()){ //check for an incoming messge
+                        String msg;
+                        msg = client.input.readLine(); //read the message
+                        if (msg.equals("Successful")){
+                            client.friendList = new FriendListGUI(client);
+                            client.friendList.setVisible(true);
+                            this.dispose();
+                        } else {
+                            System.out.println("Server to Login: " + msg);
+                            warning.setText("Invalid Username or Password");
+                        }
+                        run = false;
+                    }
+                } catch (IOException ex){
+                    System.out.println("Failed to receive msg from the server");
+                    ex.printStackTrace();
+                    client.close();
+                }
+            }
         });
         btnLogin.setBounds(50, 235, 89, 23);
         getContentPane().add(btnLogin);
 
         JButton btnCancel = new JButton("Cancel");
         btnCancel.addActionListener(e -> {
-            System.exit(0);
+            client.close();
         });
         btnCancel.setBounds(150, 235, 89, 23);
         getContentPane().add(btnCancel);
 
         JButton btnSignUp = new JButton("Sign up");
         btnSignUp.addActionListener(e -> {
-            //TODO: create the action for sign up button
+            SignupGUI signup = new SignupGUI(client);
+            signup.setVisible(true);
         });
         btnSignUp.setBounds(250, 235, 89, 23);
         getContentPane().add(btnSignUp);

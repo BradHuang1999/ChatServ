@@ -22,7 +22,7 @@ import java.io.PrintWriter;
 import java.util.Date;
 
 public class ChatGUI extends JFrame{
-	public ChatGUI(String friendNickName, String friendUserName, PrintWriter output, BufferedReader input, ChatServ client){
+	public ChatGUI(String friendNickName, String friendUserName, ChatServ client){
 		getContentPane().setLayout(null);
 
 		setTitle("Chat with " + friendNickName);
@@ -56,8 +56,8 @@ public class ChatGUI extends JFrame{
 						return;
 					}
 
-					output.println("SendEmoji\n" + friendUserName + "\n" + new Date() + "\n" + chatEmojis.selectedEmoji);
-                    output.flush();
+					client.output.println("SendEmoji\n" + friendUserName + "\n" + new Date() + "\n" + chatEmojis.selectedEmoji);
+                    client.output.flush();
 
 					appendToPane(textArea, "\nMe " + new Date(), Color.BLUE);
 					appendToPane(textArea, "\n ", Color.BLUE);
@@ -100,8 +100,8 @@ public class ChatGUI extends JFrame{
 				lblError.setText("");
 			}
 
-			output.println("SendMessage\n" + friendUserName + "\n" + new Date() + "\n" + textArea_1.getText());
-            output.flush();
+			client.output.println("SendMessage\n" + friendUserName + "\n" + new Date() + "\n" + textArea_1.getText());
+            client.output.flush();
 
 			appendToPane(textArea, "\nMe " + new Date(), Color.BLUE);
 			appendToPane(textArea, "\n " + textArea_1.getText(), Color.BLACK);

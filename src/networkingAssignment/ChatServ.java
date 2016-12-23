@@ -1,5 +1,7 @@
 package networkingAssignment;
 
+import sun.rmi.runtime.Log;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,9 +14,12 @@ import java.net.Socket;
 class ChatServ{
 
     private Socket mySocket; //socket for connection
-    private BufferedReader input; //reader for network stream
-    private PrintWriter output;
+    protected BufferedReader input; //reader for network stream
+    protected PrintWriter output;
     private boolean running = true;
+
+    protected LoginGUI login;
+    protected FriendListGUI friendList;
 
     public static void main(String[] args) throws IOException{
         ChatServ client = new ChatServ();
@@ -36,26 +41,27 @@ class ChatServ{
 
         System.out.println("Connection made.");
 
-        LoginGUI login = new LoginGUI(output, input, this);
+        login = new LoginGUI(this);
         login.setVisible(true);
 
-        while (running){  // loop unit a message is received
-            try {
-                if (input.ready()){ //check for an incoming messge
-                    String msg;
-                    msg = input.readLine(); //read the message
-                    System.out.println("Server: " + msg);
-                }
-            } catch (IOException e){
-                System.out.println("Failed to receive msg from the server");
-                e.printStackTrace();
-            }
-        }
+//        while (running){  // loop unit a message is received
+//            try {
+//                if (input.ready()){ //check for an incoming messge
+//                    String msg;
+//                    msg = input.readLine(); //read the message
+//                    System.out.println("Server: " + msg);
+//                }
+//            } catch (IOException e){
+//                System.out.println("Failed to receive msg from the server");
+//                e.printStackTrace();
+//                this.close();
+//            }
+//        }
     }
 
     public void close(){
         try {  //after leaving the main loop we need to close all the sockets
-            this.output.println("close");
+            this.output.println("Close");
             this.output.flush();
 
             running = false;
@@ -64,7 +70,8 @@ class ChatServ{
             this.output.close();
             this.mySocket.close();
 
-            System.exit(0);
+            System.exit(5);
+
         } catch (Exception e){
             System.out.println("Failed to close socket");
         }

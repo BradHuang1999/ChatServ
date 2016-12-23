@@ -7,6 +7,8 @@ import java.util.ArrayList;
 class User {
 	// Universal User Variables
 	protected ArrayList<String> messages = new ArrayList<String>();
+	protected ArrayList<String> messageSenders = new ArrayList<String>();
+	protected ArrayList<String> messageTime = new ArrayList<String>();
 	protected String username;
 	protected String password;
 	protected String nickname;
@@ -16,7 +18,7 @@ class User {
 	protected String messagingUser;
 	protected String status;
 	protected int messagingInt;
-	
+
 	// Constructor
 	User(Socket s){
 		// Online status by default
@@ -151,5 +153,5 @@ class User {
 	protected void setNickname(String nickname) {
 		this.nickname = nickname;
 	}
-	
+
 }

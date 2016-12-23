@@ -23,7 +23,7 @@ public class FriendListGUI extends JFrame{
     private String username = "Username";
     private JTextField txtSignatureHelloworld;
 
-    public FriendListGUI(PrintWriter output, BufferedReader input, ChatServ client){
+    public FriendListGUI(ChatServ client){
         getContentPane().setLayout(null);
         setTitle("ChatServ Friend List");
 
@@ -32,19 +32,13 @@ public class FriendListGUI extends JFrame{
         setLocationRelativeTo(null);
         addWindowListener(new WindowListener(){
             public void windowClosed(WindowEvent e){}
-
             public void windowOpened(WindowEvent e){}
-
             public void windowClosing(WindowEvent e){
                 client.close();
             }
-
             public void windowIconified(WindowEvent e){}
-
             public void windowDeiconified(WindowEvent e){}
-
             public void windowActivated(WindowEvent e){}
-
             public void windowDeactivated(WindowEvent e){}
         });
 
@@ -78,8 +72,8 @@ public class FriendListGUI extends JFrame{
                     txtSignatureHelloworld.setText("Signature: " + txtSignatureHelloworld.getText());
                 }
                 signature = txtSignatureHelloworld.getText().substring(11);
-                output.println("ChangeSignature\n" + signature);
-                output.flush();
+                client.output.println("ChangeSignature\n" + signature);
+                client.output.flush();
             }
             public void removeUpdate(DocumentEvent e) {}
             public void insertUpdate(DocumentEvent e) {}
@@ -91,7 +85,7 @@ public class FriendListGUI extends JFrame{
 //                    txtSignatureHelloworld.setText("Signature: " + txtSignatureHelloworld.getText());
 //                }
 //                signature = txtSignatureHelloworld.getText().substring(11);
-//                output.println("ChangeSignature\n" + signature);
+//                client.output.println("ChangeSignature\n" + signature);
 //            }
 //
 //            public void focusGained(FocusEvent e){
@@ -100,7 +94,7 @@ public class FriendListGUI extends JFrame{
 //                    txtSignatureHelloworld.setText("Signature: " + txtSignatureHelloworld.getText());
 //                }
 //                signature = txtSignatureHelloworld.getText().substring(11);
-//                output.println("ChangeSignature\n" + signature);
+//                client.output.println("ChangeSignature\n" + signature);
 //            }
 //        });
 
@@ -118,9 +112,9 @@ public class FriendListGUI extends JFrame{
         btnNewButton.setBounds(10, 122, 33, 23);
         getContentPane().add(btnNewButton);
         btnNewButton.addActionListener(e -> {
-            output.println("Online");
-            output.flush();
-            // TODO handle input, if needed, reopen connection
+            client.output.println("Online");
+            client.output.flush();
+            // TODO handle client.input, if needed, reopen connection
             lblNewLabel_1.setText("Online");
             lblNewLabel_1.setIcon(new ImageIcon("resources/green.png"));
         });
@@ -131,8 +125,8 @@ public class FriendListGUI extends JFrame{
         button.setBounds(53, 122, 33, 23);
         getContentPane().add(button);
         button.addActionListener(e -> {
-            output.println("Busy");
-            output.flush();
+            client.output.println("Busy");
+            client.output.flush();
 
             lblNewLabel_1.setText("Busy");
             lblNewLabel_1.setIcon(new ImageIcon("resources/red.png"));
@@ -144,9 +138,9 @@ public class FriendListGUI extends JFrame{
         button_1.setBounds(96, 122, 33, 23);
         getContentPane().add(button_1);
         button_1.addActionListener(e -> {
-            output.println("Offline");
-            output.flush();
-            // TODO handle input information, sever connection temporarily without closing the window
+            client.output.println("Offline");
+            client.output.flush();
+            // TODO handle client.input information, sever connection temporarily without closing the window
             lblNewLabel_1.setText("Offline");
             lblNewLabel_1.setIcon(new ImageIcon("resources/red.png"));
         });
@@ -164,7 +158,7 @@ public class FriendListGUI extends JFrame{
         DefaultListModel lm = new DefaultListModel();
         list.setModel(lm);
 
-        // TODO put the following code into a while loop, and update for input every second
+        // TODO put the following code into a while loop, and update for client.input every second
 
         //JUST FOR TEST
         lm.addElement(new Friend("Friend 1 Nickname", "Friend 1 Signature", "Friend 1 UserName", "Friend 1 status"));
@@ -172,15 +166,15 @@ public class FriendListGUI extends JFrame{
 
         list.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()){
-                output.println("ShowConvo\n" + list.getSelectedValue().getUserName());
-                output.flush();
+                client.output.println("ShowConvo\n" + list.getSelectedValue().getUserName());
+                client.output.flush();
 
-                ChatGUI chat = new ChatGUI(list.getSelectedValue().getNickName(), list.getSelectedValue().getUserName(), output, input, client);
+                ChatGUI chat = new ChatGUI(list.getSelectedValue().getNickName(), list.getSelectedValue().getUserName(), client);
                 chat.setVisible(true);
             }
         });
 
-        // TODO handle input information, setup While loop. Change signature, nickname, username, friendlist content accordingly
+        // TODO handle client.input information, setup While loop. Change signature, nickname, username, friendlist content accordingly
     }
 
     class Friend extends JPanel implements ListCellRenderer{
