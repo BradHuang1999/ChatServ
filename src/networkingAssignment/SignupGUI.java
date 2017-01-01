@@ -2,9 +2,7 @@ package networkingAssignment;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 /**
  * Created by Brad Huang on 12/23/2016.

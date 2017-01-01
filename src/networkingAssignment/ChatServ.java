@@ -27,7 +27,7 @@ class ChatServ{
         System.out.println("Attempting to make a connection..");
 
         try {
-            mySocket = new Socket("127.0.0.1", 5000); //attempt socket connection (local address). This will wait until a connection is made
+            mySocket = new Socket("127.0.0.1", ChatProgramServer.socketNum); //attempt socket connection (local address). This will wait until a connection is made
             InputStreamReader stream1 = new InputStreamReader(mySocket.getInputStream()); //Stream for network input
             input = new ClientBufferedReader(stream1);
             output = new PrintWriter(mySocket.getOutputStream()); //assign printwriter to network stream
