@@ -18,12 +18,17 @@ import java.io.PrintWriter;
  */
 public class FriendListGUI extends JFrame{
 
-    private String signature = "HelloWorld";
-    private String nickname = "NICKNAME";
-    private String username = "Username";
+    private String signature;
+    private String nickname;
+    private String username;
     private JTextField txtSignatureHelloworld;
 
-    public FriendListGUI(ChatServ client){
+    public FriendListGUI(ChatServ client, String username, String nickname, String sig){
+
+        this.username = username;
+        this.nickname = nickname;
+        this.signature = sig;
+
         getContentPane().setLayout(null);
         setTitle("ChatServ Friend List");
 
@@ -31,35 +36,23 @@ public class FriendListGUI extends JFrame{
         setResizable(false);
         setLocationRelativeTo(null);
         addWindowListener(new WindowListener(){
-            public void windowClosed(WindowEvent e){
-            }
-
-            public void windowOpened(WindowEvent e){
-            }
-
+            public void windowClosed(WindowEvent e){}
+            public void windowOpened(WindowEvent e){}
             public void windowClosing(WindowEvent e){
                 client.close();
             }
-
-            public void windowIconified(WindowEvent e){
-            }
-
-            public void windowDeiconified(WindowEvent e){
-            }
-
-            public void windowActivated(WindowEvent e){
-            }
-
-            public void windowDeactivated(WindowEvent e){
-            }
+            public void windowIconified(WindowEvent e){}
+            public void windowDeiconified(WindowEvent e){}
+            public void windowActivated(WindowEvent e){}
+            public void windowDeactivated(WindowEvent e){}
         });
 
-        JLabel lblNickname = new JLabel(nickname);
+        JLabel lblNickname = new JLabel(this.nickname);
         lblNickname.setFont(new Font("Impact", Font.PLAIN, 20));
         lblNickname.setBounds(10, 11, 171, 35);
         getContentPane().add(lblNickname);
 
-        JLabel lblNewLabel = new JLabel("@ " + username);
+        JLabel lblNewLabel = new JLabel("@ " + this.username);
         lblNewLabel.setFont(new Font("Trebuchet MS", Font.PLAIN, 14));
         lblNewLabel.setBounds(18, 52, 89, 14);
         getContentPane().add(lblNewLabel);
@@ -71,7 +64,7 @@ public class FriendListGUI extends JFrame{
         getContentPane().add(lblNewLabel_1);
 
         txtSignatureHelloworld = new JTextField();
-        txtSignatureHelloworld.setText("Signature: " + signature);
+        txtSignatureHelloworld.setText("Signature: " + this.signature);
         txtSignatureHelloworld.setBounds(10, 78, 220, 24);
         getContentPane().add(txtSignatureHelloworld);
         txtSignatureHelloworld.setColumns(10);
@@ -185,8 +178,8 @@ public class FriendListGUI extends JFrame{
         });
 
         // TODO handle client.input information, setup While loop. Change signature, nickname, username, friendlist content accordingly
-        boolean run = true;
-        while (run){
+//        boolean run = true;
+//        while (run){
 //            while (running){  // loop unit a message is received
 //                try {
 //                    if (input.ready()){ //check for an incoming messge
@@ -205,7 +198,7 @@ public class FriendListGUI extends JFrame{
             lm.addElement(new Friend("Friend 1 Nickname", "Friend 1 Signature", "Friend 1 UserName", "Friend 1 status"));
             lm.addElement(new Friend("Friend 2 Nickname", "Friend 2 Signature", "Friend 2 UserName", "Friend 2 status"));
 
-        }
+//        }
     }
 
     class Friend extends JPanel implements ListCellRenderer{

@@ -11,7 +11,7 @@ import java.net.Socket;
 class ChatServ{
 
     private Socket mySocket; //socket for connection
-    protected ClientBufferedReader input; //reader for network stream
+    public ClientBufferedReader input; //reader for network stream
     protected PrintWriter output;
     private boolean running = true;
 
@@ -20,7 +20,7 @@ class ChatServ{
 
     public static void main(String[] args) throws IOException{
         ChatServ client = new ChatServ();
-        new ChatServ().start();
+        client.start();
     }
 
     public void start() throws IOException{
@@ -78,6 +78,7 @@ class ChatServ{
         public ClientBufferedReader(Reader in){
             super(in);
         }
+
         @Override
         public String readLine() throws IOException{
             String line = super.readLine();

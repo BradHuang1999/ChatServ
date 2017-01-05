@@ -32,7 +32,8 @@ public class ChatProgramServer{
 	private PrintWriter usersFile = new PrintWriter(new FileWriter(users, true));
 
 	// number of clients
-	private int numClients = -1;
+	private int numClients = 0;
+	private int userNum = 0;
 
 	// socket port number
 	public static final int socketNum = 1234;
@@ -45,20 +46,21 @@ public class ChatProgramServer{
 			serverSock = new ServerSocket(socketNum);
 			// Read users from text file
 			Scanner usersReader = new Scanner(users);
-			int userNum = 0;
 			while (usersReader.hasNextLine()){
 				clients.add(new User());
+				System.out.println(clients.size());
 				clients.get(userNum).setUsername(usersReader.nextLine());
 				clients.get(userNum).setNickname(usersReader.nextLine());
 				clients.get(userNum).setPassword(usersReader.nextLine());
+				clients.get(userNum).setSignature(usersReader.nextLine());
 				userNum++;
 			}
 			usersReader.close();
 
-//			// testing
-//			for (int i = 0; i < clients.size(); i++){
-//				System.out.println(clients.get(i).getUsername() + " " + clients.get(i).getNickname() + " " + clients.get(i).getPassword());
-//			}
+			//			// testing
+			//			for (int i = 0; i < clients.size(); i++){
+			//				System.out.println(clients.get(i).getUsername() + " " + clients.get(i).getNickname() + " " + clients.get(i).getPassword());
+			//			}
 
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 				System.out.println("Closing");
@@ -79,24 +81,29 @@ public class ChatProgramServer{
 	 */
 	public void go() throws IOException{
 		// Continually loops to accept all clients
-//		try{
-		while (running){
-			// Adds user to arraylist
-			clients.add(new User(serverSock.accept()));  //wait for connection
-			numClients++;
+		Socket tempSocket;
+		try{
+			while (running){
+				// Adds user to arraylist
+				tempSocket = serverSock.accept();
+				System.out.println(tempSocket);
+				clients.add(new User());  //wait for connection
+				clients.get(userNum).setSocket(tempSocket);
+				// Creates a separate thread for each user
+				clientThreads.add(new Thread(new ConnectionHandler(clients.get(userNum))));
+				clientThreads.get(numClients).start(); //start the new thread
+				userNum++;
+				numClients++;
 
-			// Creates a separate thread for each user
-			clientThreads.add(new Thread(new ConnectionHandler(clients.get(numClients))));
-			clientThreads.get(numClients).start(); //start the new thread
+				System.out.println("New client connected");
 
-			System.out.println("New client connected");
-
+			}
 		}
-//		}
-//		catch (Exception e){
-//			System.out.println("Error accepting connection");
-//			System.exit(-1);
-//		}
+		catch (Exception e){
+			e.printStackTrace();
+			System.out.println("Error accepting connection");
+			System.exit(-1);
+		}
 	}
 
 	//***** Inner class - thread for client connection
@@ -136,13 +143,13 @@ public class ChatProgramServer{
 		 * executed on start of thread
 		 */
 		public void run(){
-			while (running){
+            boolean waiting = true;
+
+			while (waiting){
 				// Checks username and password
 				try {
 					if (input.ready()){
 						inputMessage = input.readLine();
-
-						System.out.println("FirstLine: " + inputMessage);
 
 						// If the user is making a new account
 						if (inputMessage.equals("CreateUser")){
@@ -152,14 +159,14 @@ public class ChatProgramServer{
 							boolean usernameInUse = false;
 
 							// Checks if the username is in use
-							for (int i = 0; i < clients.size(); i++){
+							for (int i = 0; i < clients.size() - 1; i++){
 								if (clients.get(i).getUsername().equals(inputMessage)){
 									inputMessage = input.readLine();
 									inputMessage = input.readLine();
 									inputMessage = input.readLine();
 									output.println("Username already in use");
 									output.flush();
-									usernameInUse = false;
+									usernameInUse = true;
 									break;
 								}
 							}
@@ -168,9 +175,12 @@ public class ChatProgramServer{
 								// Sets Username
 								user.setUsername(inputMessage);
 								// Sets Nickname
+								inputMessage = input.readLine();
 								user.setNickname(inputMessage);
 								// Sets and checks passwords
+								inputMessage = input.readLine();
 								user.setPassword(inputMessage);
+								// Confirmation Password
 								inputMessage = input.readLine();
 
 								if (user.getPassword().equals(inputMessage)){
@@ -178,7 +188,7 @@ public class ChatProgramServer{
 									usersFile.println(user.getUsername());
 									usersFile.println(user.getNickname());
 									usersFile.println(user.getPassword());
-
+                                    usersFile.println(user.getSignature());
 									// Confirms user creation
 									output.println("User created");
 									output.flush();
@@ -204,13 +214,16 @@ public class ChatProgramServer{
 										clients.remove(i);
 										clients.add(user);
 										output.println("Successful");
+										output.println(user.getUsername() + "\n" + user.getNickname() + "\n" + user.getSignature());
 										output.flush();
-										running = false;
+
+										waiting = false;
+										break;
 									} else {
 										output.println("Unsuccessful");
 										output.flush();
 									}
-								} else ;
+								}
 							}
 							// If username is not found in the database
 							if (user == null){
@@ -229,16 +242,15 @@ public class ChatProgramServer{
 					e.printStackTrace();
 				} catch (NullPointerException e){
 					System.out.println("Null Pointer Exception");
-					output.println("Null Pointer Exception");
 					output.flush();
 					e.printStackTrace();
 				}
 			}
 
-			running = true;
+			waiting = true;
 
 			// Loop to keep receiving messages from the client
-			while (running){
+			while (waiting){
 				// Sends all the friends list info to the client
 				output.println("Friends List Info");
 				output.flush();
@@ -251,6 +263,7 @@ public class ChatProgramServer{
 				// Signals end of friends list info
 				output.println("End of Friends List");
 				output.flush();
+
 				// Sends all the messages in the client queue to the client
 				for (int i = 0; i < user.messages.size(); i++){
 					// Nickname of person messaging
@@ -272,6 +285,7 @@ public class ChatProgramServer{
 						// Checks if the client is sending a message
 						// First input is a command for what they want to do
 						user.setMessagingUser(input.readLine());
+
 						// If statement for what client wants to do
 						// Sending a Message
 						if (user.getMessagingUser().equals("SendMessage")){
@@ -282,6 +296,7 @@ public class ChatProgramServer{
 									user.setMessagingInt(i);
 								}
 							}
+
 							// Receives and sends the message
 							user.sendMessage = input.readLine();
 							clients.get(user.getMessagingInt()).messageSenders.add(user.getNickname());
@@ -289,29 +304,35 @@ public class ChatProgramServer{
 							user.sendMessage = input.readLine();
 							clients.get(user.getMessagingInt()).messages.add(user.sendMessage);
 							System.out.println("msg from " + user.getUsername() + "to " + clients.get(user.getMessagingInt()).getUsername() + ": " + user.sendMessage);
+
 						} else if (user.getMessagingUser().equals("ChangeSignature")){
 							inputMessage = input.readLine();
 							user.setSignature(inputMessage);
 							output.println("Signature Changed");
 							output.flush();
+
 							// Setting Status To Busy
 						} else if (user.getMessagingUser().equals("Busy")){
 							user.setStatus("Busy");
 							output.println("Status Changed");
 							output.flush();
+
 							// Setting Status to Online
 						} else if (user.getMessagingUser().equals("Online")){
 							user.setStatus("Online");
 							output.println("Status Changed");
 							output.flush();
+
 						} else if (user.getMessagingUser().equals("Offline")){
 							user.setStatus("Offline");
 							output.println("Status Changed");
 							output.flush();
+
 						} else if (user.getMessagingUser().equals("Close")){
 							user.setStatus("Offline");
 							System.out.println("User " + user.getUsername() + " has disconnected");
 							running = false;
+
 						} else {
 							output.println("Invalid Command Received");
 							output.flush();
@@ -321,6 +342,11 @@ public class ChatProgramServer{
 					System.out.println("Failed to receive msg from the client");
 					e.printStackTrace();
 				}
+
+				try{
+				    Thread.sleep(10);
+                } catch (InterruptedException e){
+                }
 			}
 		}
 	}

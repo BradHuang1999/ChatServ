@@ -74,7 +74,7 @@ public class LoginGUI extends JFrame{
                         String msg;
                         msg = client.input.readLine(); //read the message
                         if (msg.equals("Successful")){
-                            client.friendList = new FriendListGUI(client);
+                            client.friendList = new FriendListGUI(client, client.input.readLine(), client.input.readLine(), client.input.readLine());
                             client.friendList.setVisible(true);
                             this.dispose();
                         } else {
