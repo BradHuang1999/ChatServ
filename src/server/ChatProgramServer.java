@@ -311,8 +311,12 @@ public class ChatProgramServer{
                     // Sends message
                     output.flush();
 				}
+
 				// Removes messages
 				user.messages.clear();
+				user.messageTime.clear();
+				user.messageSenders.clear();
+				user.messageSendersNick.clear();
 
 				// Checks if the user is still connected
 				try {
