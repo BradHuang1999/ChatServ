@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Created by Brad Huang on 12/21/2016.
@@ -19,7 +20,7 @@ public class FriendListGUI extends JFrame{
 
     private JScrollPane scrollPane;
     private JList<Friend> list;
-    private DefaultListModel lm;
+    private DefaultListModel<Friend> lm;
 
     public FriendListGUI(ChatServ client, String username, String nickname, String sig){
 
@@ -75,13 +76,17 @@ public class FriendListGUI extends JFrame{
         getContentPane().add(txtSignatureHelloworld);
         txtSignatureHelloworld.setColumns(10);
 
-        addKeyListener(new KeyListener(){
+        txtSignatureHelloworld.addKeyListener(new KeyListener(){
             @Override
-            public void keyTyped(KeyEvent e){
-                //TODO change signature
-            }
+            public void keyTyped(KeyEvent e){}
             public void keyPressed(KeyEvent e){}
-            public void keyReleased(KeyEvent e){}
+            public void keyReleased(KeyEvent e){
+                if (!txtSignatureHelloworld.getText().equals(signature)){
+                    signature = txtSignatureHelloworld.getText();
+                    client.output.println("ChangeSignature" + "\n" + signature);
+                    client.output.flush();
+                }
+            }
         });
 
         JSeparator separator = new JSeparator();
@@ -134,6 +139,9 @@ public class FriendListGUI extends JFrame{
             lblNewLabel_1.setText("Offline");
             lblNewLabel_1.setIcon(new ImageIcon("resources/red.png"));
 
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException ex){}
             client.running = false;
         });
 
@@ -141,13 +149,13 @@ public class FriendListGUI extends JFrame{
         scrollPane.setBounds(10, 163, 324, 488);
         getContentPane().add(scrollPane);
 
-        list = new JList<Friend>();
+        list = new JList<>();
         list.setFixedCellHeight(80);
         list.setSelectedIndex(-1);
 
         list.setCellRenderer(new Friend());
         scrollPane.setViewportView(list);
-        lm = new DefaultListModel();
+        lm = new DefaultListModel<>();
         list.setModel(lm);
 
         list.getSelectionModel().addListSelectionListener(e -> {
@@ -180,7 +188,7 @@ public class FriendListGUI extends JFrame{
 
                                 createNew = true;
                                 for (int i = 0; i < lm.getSize(); i++){
-                                    frd = (Friend)lm.get(i);
+                                    frd = lm.get(i);
 
                                     if (uName.equals(frd.getUserName())){
                                         frd.setNickName(nName);
@@ -188,6 +196,11 @@ public class FriendListGUI extends JFrame{
                                         frd.setStatus(stus);
                                         frd.update();
                                         createNew = false;
+
+//                                        if (frd.getStatus().equals("Online")){
+//                                            lm.remove(i);
+//                                            lm.add(0, frd);
+//                                        }
                                         break;
                                     }
                                 }
@@ -209,7 +222,7 @@ public class FriendListGUI extends JFrame{
                                 msg = client.input.readLine();
 
                                 for (int i = 0; i < lm.getSize(); i++){
-                                    frd = (Friend)lm.get(i);
+                                    frd = lm.get(i);
                                     if (uName.equals(frd.getUserName())){
                                         frd.receiveMessage((nName + " " + timeStamp), msg);
                                         break;
@@ -221,10 +234,6 @@ public class FriendListGUI extends JFrame{
                         } else {
                             System.out.print("Invalid command received from server");
                         }
-                        try{
-                            Thread.sleep(100);
-                        } catch (InterruptedException e){
-                        }
                     }
                 } catch (IOException e){
                     System.out.println("Failed to receive msg from the server");
@@ -233,7 +242,7 @@ public class FriendListGUI extends JFrame{
                 }
             }
             try{
-                Thread.sleep(1000);
+                Thread.sleep(100);
             } catch (InterruptedException e){
             }
         }

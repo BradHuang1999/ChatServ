@@ -25,7 +25,7 @@ public class ChatProgramServer{
 	private ArrayList<Thread> clientThreads = new ArrayList<Thread>();
 
 	// File and PrintWriter
-	private File users = new File("userfiles/users.txt");
+	private File users = new File("users.txt");
 	private PrintWriter usersFile = new PrintWriter(new FileWriter(users, true));
 
 	// number of clients
@@ -46,7 +46,7 @@ public class ChatProgramServer{
 
 		// Variable for total number of clients
 		try {
-			// Assigns 5000 port to server
+			// Assigns port to server
 			serverSock = new ServerSocket(PORT_NUM);
 			// Read users from text file
 			Scanner usersReader = new Scanner(users);
@@ -63,6 +63,21 @@ public class ChatProgramServer{
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 				System.out.println("Closing");
 				usersFile.close();
+
+				try {
+                    PrintWriter usersFilePw = new PrintWriter(users);
+                    for (int i = 0; i < clients.size(); i++){
+                        if (clients.get(i).getUsername() != null){
+                            usersFilePw.println(clients.get(i).getUsername());
+                            usersFilePw.println(clients.get(i).getNickname());
+                            usersFilePw.println(clients.get(i).getPassword());
+                            usersFilePw.println(clients.get(i).getSignature());
+                        }
+                    }
+                    usersFilePw.close();
+                } catch (IOException e){
+				    e.printStackTrace();
+                }
 			}, "Shutdown-thread"));
 
 			System.out.println("Waiting for client connection..");
@@ -78,7 +93,6 @@ public class ChatProgramServer{
         serverFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         serverFrame.getContentPane().setLayout(null);
         serverFrame.setAlwaysOnTop (true);
-
 
         titleLbl = new JLabel("ChatServ");
         titleLbl.setFont(new Font("Trebuchet MS", Font.PLAIN, 40));
@@ -282,7 +296,6 @@ public class ChatProgramServer{
 			while (waiting){
 				// Sends all the friends list info to the client
 				output.println("Friends List Info");
-				output.flush();
 				for (int i = 0; i < clients.size(); i++){
                     if (clients.get(i).getUsername() != null){
                         output.println(clients.get(i).getUsername());
@@ -351,25 +364,17 @@ public class ChatProgramServer{
 						} else if (user.getMessagingUser().equals("ChangeSignature")){
 							inputMessage = input.readLine();
 							user.setSignature(inputMessage);
-							output.println("Signature Changed");
-							output.flush();
 
 							// Setting Status To Busy
 						} else if (user.getMessagingUser().equals("Busy")){
 							user.setStatus("Busy");
-							output.println("Status Changed");
-							output.flush();
 
 							// Setting Status to Online
 						} else if (user.getMessagingUser().equals("Online")){
 							user.setStatus("Online");
-							output.println("Status Changed");
-							output.flush();
 
 						} else if (user.getMessagingUser().equals("Offline")){
 							user.setStatus("Offline");
-							output.println("Status Changed");
-							output.flush();
 
 						} else if (user.getMessagingUser().equals("Close")){
                             numClients--;
@@ -394,7 +399,7 @@ public class ChatProgramServer{
 				}
 
 				try{
-				    Thread.sleep(1000);
+				    Thread.sleep(100);
                 } catch (InterruptedException e){
                 }
 			}

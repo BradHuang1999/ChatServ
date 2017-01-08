@@ -4,6 +4,7 @@ import server.ChatProgramServer;
 
 import java.io.*;
 import java.net.Socket;
+import java.sql.SQLSyntaxErrorException;
 
 /**
  * @author Brad Huang
@@ -27,19 +28,20 @@ class ChatServ{
     public void start() throws IOException{
         System.out.println("Attempting to make a connection..");
 
-        try {
+//        try {
             mySocket = new Socket(ChatProgramServer.IP_ADDRESS, ChatProgramServer.PORT_NUM); //attempt socket connection (local address). This will wait until a connection is made
             InputStreamReader stream1 = new InputStreamReader(mySocket.getInputStream()); //Stream for network input
             input = new ClientBufferedReader(stream1);
             output = new PrintWriter(mySocket.getOutputStream()); //assign printwriter to network stream
-        } catch (IOException e){  //connection error occured
-            System.out.println("Connection to Server Failed");
-        }
 
-        System.out.println("Connection made.");
+            System.out.println("Connection made.");
 
-        login = new LoginGUI(this);
-        login.setVisible(true);
+            login = new LoginGUI(this);
+            login.setVisible(true);
+//        } catch (IOException e){  //connection error occured
+//            System.out.println("Connection to Server Failed");
+//            System.exit(-1);
+//        }
     }
 
     public void close(){

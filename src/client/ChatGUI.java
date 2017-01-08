@@ -64,9 +64,11 @@ public class ChatGUI extends JFrame{
             if (line.substring(0, 3).equals("Me ")){
                 appendToPane(line, Color.BLUE);
                 appendToPane(chIn.nextLine(), Color.BLACK);
+                appendToPane("", Color.BLACK);
             } else {
                 appendToPane(line, Color.DARK_GRAY);
                 appendToPane(chIn.nextLine(), Color.BLACK);
+                appendToPane("", Color.BLACK);
             }
         }
         chIn.close();
@@ -88,8 +90,9 @@ public class ChatGUI extends JFrame{
 
 					appendToPane("Me " + new Date(), Color.BLUE);
 					appendToPane("//emoji//-" + chatEmojis.selectedEmoji, Color.BLACK);
+                    appendToPane("", Color.BLACK);
 
-					chatEmojis.selectedEmoji = null;
+                    chatEmojis.selectedEmoji = null;
 				}
 				public void windowOpened(WindowEvent e){}
 				public void windowClosing(WindowEvent e){}
@@ -134,7 +137,8 @@ public class ChatGUI extends JFrame{
 
 			appendToPane("Me " + new Date(), Color.BLUE);
 			appendToPane(msg, Color.BLACK);
-			textArea_1.setText("");
+            appendToPane("", Color.BLACK);
+            textArea_1.setText("");
 
             chOut.println("Me " + new Date());
             chOut.println(msg);
