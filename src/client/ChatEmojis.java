@@ -3,36 +3,38 @@ package client;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 /**
- * Created by Brad Huang on 12/21/2016.
+ * Emoji window for chat
+ * @author Brad Huang, Charlie Lin
  */
-public class ChatEmojis extends JFrame{
+public class ChatEmojis extends JFrame {
+    // file path to the selected emoji
     public static String selectedEmoji;
 
-    public ChatEmojis(){
+    /**
+     * constructor
+     */
+    public ChatEmojis() {
+        // GUI stuff
         getContentPane().setLayout(new GridLayout(0, 4, 0, 0));
 
         setTitle("");
         setSize(100, 120);
         setResizable(false);
-        //setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        ActionListener ac = new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e){
-                JButton source = (JButton)e.getSource();
-                selectedEmoji = source.getName();
-                dispose();
-            }
+        ActionListener ac = e -> {
+            JButton source = (JButton) e.getSource();
+            selectedEmoji = source.getName();       // get file path for the emoji
+            dispose();      // close the window
         };
 
+        // set up buttons for emojis
         try {
             JButton btnNewButton = new JButton("");
             String pa = "resources/emojis/emojiAngel.png";
@@ -178,9 +180,8 @@ public class ChatEmojis extends JFrame{
             getContentPane().add(btnNewButton_15);
             btnNewButton_15.addActionListener(ac);
 
-        } catch (IOException e){
-            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("Something is wrong with the emoji window...");
         }
     }
 }
-

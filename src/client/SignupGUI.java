@@ -5,14 +5,18 @@ import java.awt.*;
 import java.io.IOException;
 
 /**
- * Created by Brad Huang on 12/23/2016.
+ * SignUp UI
+ * @author Brad Huang
  */
-public class SignupGUI extends JFrame{
+public class SignupGUI extends JFrame {
 
-    private JPanel panel1;
-
-    public SignupGUI(ChatServ client){
-        getContentPane().setLayout(null);
+    /**
+     * constructor
+     *
+     * @param client    controls I/O
+     */
+    public SignupGUI(ChatServ client) {
+        getContentPane().setLayout(null);       // GUI stuff
 
         setTitle("Login");
         setSize(400, 300);
@@ -67,24 +71,23 @@ public class SignupGUI extends JFrame{
             warning.setText("");
 
             client.output.println("CreateUser\n" + textField.getText() + "\n" + textFieldNick.getText() + "\n" + String.valueOf(passwordField.getPassword()) + "\n" + String.valueOf(passwordField2.getPassword()));
-            client.output.flush();
+            client.output.flush();      // send message to server creating user
 
-            boolean run = true;
-            while (run){
+            boolean run = true;     // start receiving message
+            while (run) {
                 try {
-                    if (client.input.ready()){ //check for an incoming message
+                    if (client.input.ready()) {      // check for an incoming message
                         String msg;
-                        msg = client.input.readLine(); //read the message
-                        if (msg.equals("User created")){
+                        msg = client.input.readLine();      // read the message
+                        if (msg.equals("User created")) {        // if successful, close window and create user
                             dispose();
                         } else {
                             warning.setText(msg);
                         }
-                        run = false;
+                        run = false;        // either way stop receiving messages
                     }
-                } catch (IOException ex){
+                } catch (IOException ex) {
                     System.out.println("Failed to receive msg from the server");
-                    ex.printStackTrace();
                     client.close();
                 }
             }
@@ -98,7 +101,5 @@ public class SignupGUI extends JFrame{
         });
         btnCancel.setBounds(222, 235, 89, 23);
         getContentPane().add(btnCancel);
-
-
     }
 }

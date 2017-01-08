@@ -7,30 +7,49 @@ import java.awt.event.WindowListener;
 import java.io.IOException;
 
 /**
- * Created by Brad Huang on 12/21/2016.
+ * LogIn UI
+ * @author Brad Huang, Charlie Lin
  */
-public class LoginGUI extends JFrame{
+public class LoginGUI extends JFrame {
 
+    // GUI variables
     private JTextField textField;
     private JPasswordField passwordField;
 
-    public LoginGUI(ChatServ client){
+    /**
+     * constructor
+     *
+     * @param client    controls I/O
+     */
+    public LoginGUI(ChatServ client) {
         getContentPane().setLayout(null);
 
         setTitle("Login");
         setSize(400, 300);
         setResizable(false);
         setLocationRelativeTo(null);
-        addWindowListener(new WindowListener(){
-            public void windowClosed(WindowEvent e){}
-            public void windowOpened(WindowEvent e){}
-            public void windowClosing(WindowEvent e){
+        addWindowListener(new WindowListener() {
+            public void windowClosed(WindowEvent e) {
+            }
+
+            public void windowOpened(WindowEvent e) {
+            }
+
+            public void windowClosing(WindowEvent e) {
                 client.close();
             }
-            public void windowIconified(WindowEvent e){}
-            public void windowDeiconified(WindowEvent e){}
-            public void windowActivated(WindowEvent e){}
-            public void windowDeactivated(WindowEvent e){}
+
+            public void windowIconified(WindowEvent e) {
+            }
+
+            public void windowDeiconified(WindowEvent e) {
+            }
+
+            public void windowActivated(WindowEvent e) {
+            }
+
+            public void windowDeactivated(WindowEvent e) {
+            }
         });
 
         textField = new JTextField();
@@ -67,34 +86,34 @@ public class LoginGUI extends JFrame{
             client.output.println("Login\n" + textField.getText() + "\n" + String.valueOf(passwordField.getPassword()));
             client.output.flush();
 
-            boolean successful = false;
+            boolean successful = false;     // successful
 
-            client.running = true;
-            while (client.running){
+            client.running = true;      // start receiving message
+            while (client.running) {
                 try {
-                    if (client.input.ready()){ //check for an incoming messge
+                    if (client.input.ready()) {      //check for an incoming messge
                         String msg;
-                        msg = client.input.readLine(); //read the message
-                        if (msg.equals("Successful")){
+                        msg = client.input.readLine();      //read the message
+                        if (msg.equals("Successful")) {
                             client.friendList = new FriendListGUI(client, client.input.readLine(), client.input.readLine(), client.input.readLine());
-                            client.friendList.setVisible(true);
-                            this.dispose();
+                            client.friendList.setVisible(true);     // if successful, set up and display the friendlist UI
+                            this.dispose();     // close the login UI
                             successful = true;
                         } else {
-                            warning.setText("Invalid Username or Password");
+                            warning.setText("Invalid Username or Password");        // set up warning
                         }
-                        client.running = false;
+                        client.running = false;     // stop receiving messages
                     }
-                } catch (IOException ex){
+                } catch (IOException ex) {
                     System.out.println("Failed to receive msg from the server");
                     ex.printStackTrace();
                     client.close();
                 }
             }
-            if (successful){
+            if (successful) {
                 try {
-                    Thread.sleep(550);
-                } catch (InterruptedException e1){
+                    Thread.sleep(550);      // pause the thread to receive any extra message from server
+                } catch (InterruptedException e1) {
                 }
 
                 new Thread(() ->
@@ -112,7 +131,7 @@ public class LoginGUI extends JFrame{
 
         JButton btnSignUp = new JButton("Sign up");
         btnSignUp.addActionListener(e -> {
-            SignupGUI signup = new SignupGUI(client);
+            SignupGUI signup = new SignupGUI(client);       // setup and display a signup UI
             signup.setVisible(true);
         });
         btnSignUp.setBounds(250, 235, 89, 23);
